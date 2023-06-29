@@ -1,0 +1,14 @@
+#Blacklist all
+*
+#Whitelist specifics
+!container
+!features
+!cross_exchange_rate_fallback_core
+!tests
+!requirements.txt
+!run_all_tests.sh
+!setup.py
+!cross_exchange_rate_fallback.py
+
+#Blacklist specifics
+**/__pycache__
