@@ -1,4 +1,5 @@
 import pandas
+import requests
 import yfinance as yf
 from cross_exchange_rate_fallback_core.appservices import AppServices
 
@@ -22,5 +23,11 @@ class YahooClient:
             isin = ""
         if not isinstance(isin, str):
             raise TypeError(f"isin must be a string, but was {type(isin)}")
-        data = yf.Ticker(isin)
+        
+        try:
+            data = yf.Ticker(isin)
+        except requests.exceptions.HTTPError as e:
+            #retry once - sometimes yfinance fails with a HTTPError 401 but woudl work on a second try
+            data = yf.Ticker(isin)
+
         return data.info['symbol']
