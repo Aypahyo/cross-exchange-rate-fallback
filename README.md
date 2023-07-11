@@ -6,13 +6,16 @@ This repository contains an experimental implementation of a service designed to
 
 The service works as follows:
 
-1. It tries to fetch the exchange rates data from the primary source (e.g., a specific stock exchange).
-2. If the primary source is not available or does not provide data for a specific asset, the service switches to a fallback strategy. The fallback strategy involves fetching the data from the last known value.
-3. If the last known value is not available or too old to be reliable, the service switches to an alternative strategy. This involves fetching the data from a free API, like Yahoo's finance API, and converting the asset value into Euros using the current exchange rate.
+* It queries stock data and exchange rate sources with a fixed time frame.
+* It converts the data to a common currency (EUR)
+* It calculates the percentage deviation between the two data sources
+* It prints the data frames to the console
 
 ## Motivation
 
 This service was inspired by the challenges faced when dealing with illiquid assets or assets with small market caps. These assets may not always have readily available and up-to-date exchange rates data. By switching between different strategies, this service ensures that we always have a best possible estimate of an asset's value in Euros.
+
+This implementation explores stock data source options and combining them in order to determine feasability of that strategy.
 
 ## Testing options
 
@@ -24,8 +27,14 @@ src/run_all_tests.sh
 src/run_docker_all_tests.sh
 ```
 
-## for later
+## Sample usage
 
-when I write my blog entry on this, I should include a list of nano-cap stocks, e.g. from here:
+```bash
+python3 ./src/cross_exchange_rate_fallback.py AAPL
+python3 ./src/cross_exchange_rate_fallback.py GOOG
+python3 ./src/cross_exchange_rate_fallback.py US42309B4023
+```
 
-<https://stockanalysis.com/list/nano-cap-stocks/>
+AAPL and GOOG are examples of well traded stocks, while US42309B4023 is an example of a nanocap stock.
+AAPL and GOOG are enriched with percentage deviation that compares known Tradegate with Converted from Yahoo data.
+US42309B4023 has no TradeGate data, so there is no percentage deviation.
