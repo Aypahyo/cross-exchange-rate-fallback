@@ -35,7 +35,7 @@ class StockPageModelTest(unittest.TestCase):
                     actual = self.uut.get_stock_search_term()
                     self.assertEqual(expected, actual)
 
-    def test_stock_data(self):
+    def test_yahoo_stock_data(self):
         valid_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])
         empty_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
 
@@ -57,6 +57,35 @@ class StockPageModelTest(unittest.TestCase):
                 else:
                     self.uut.set_yahoo_stock_data(input)
                     actual = self.uut.get_yahoo_stock_data()
+                    self.assertEqual(str(expected), str(actual))
+
+    def test_parameterized_stock_data(self):
+        valid_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])
+        empty_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+
+        parameter = [
+            {"field": "yahoo_stock_data","input": empty_stock_data, "expected": empty_stock_data, "error": None},
+            {"field": "yahoo_stock_data","input": valid_stock_data, "expected": valid_stock_data, "error": None},
+            {"field": "yahoo_stock_data","input": None, "expected": empty_stock_data, "error": None},
+            {"field": "yahoo_stock_data","input": 123, "expected": None, "error": TypeError},
+            {"field": "tradegate_stock_data","input": empty_stock_data, "expected": empty_stock_data, "error": None},
+            {"field": "tradegate_stock_data","input": valid_stock_data, "expected": valid_stock_data, "error": None},
+            {"field": "tradegate_stock_data","input": None, "expected": empty_stock_data, "error": None},
+            {"field": "tradegate_stock_data","input": 123, "expected": None, "error": TypeError},
+        ]
+
+        for p in parameter:
+            input = p["input"]
+            expected = p["expected"]
+            error = p["error"]
+            field = p["field"]
+            with self.subTest(input=input, expected=expected, error=error):
+                if error:
+                    with self.assertRaises(error):
+                        self.uut.set_field(field, input)
+                else:
+                    self.uut.set_field(field, input)
+                    actual = self.uut.get_field(field)
                     self.assertEqual(str(expected), str(actual))
 
     def test_set_get_field(self):
@@ -83,23 +112,27 @@ class StockPageModelTest(unittest.TestCase):
                     self.uut.set_field(field, input)
                     actual = self.uut.get_field(field)
                     self.assertEqual(expected, actual)
-    
+
+    def setup_client(self, data_field, old_value, new_value):
+        self.uut.set_field(data_field, old_value)
+        client = MagicMock()
+        client.get_stock_data = MagicMock(return_value=new_value)
+        return client
+
+
     def test_click_update_stock_data(self):
         old_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         new_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])
-        self.services.yahoo_client = MagicMock()
-        self.services.yahoo_client.get_stock_data = MagicMock(return_value=new_data)
-        self.uut.set_yahoo_stock_data(old_data)
+        self.services.yahoo_client= self.setup_client("yahoo_stock_data", old_data, new_data)
+        self.services.tradegate_client = self.setup_client("tradegate_stock_data", old_data, new_data)
+        
         self.uut.click_update_stock_data()
         actual = self.uut.get_yahoo_stock_data()
-        #comparing dataframes is not trivial, so we compare the string representation
         self.assertEqual(str(new_data), str(actual))
-    
+
     def test_click_button(self):
         old_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         new_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])
-        self.services.yahoo_client = MagicMock()
-        self.services.yahoo_client.get_stock_data = MagicMock(return_value=new_data)
 
         parameter = [
             {"button" : "update_stock_data", "expected": new_data, "error": None},
@@ -113,13 +146,16 @@ class StockPageModelTest(unittest.TestCase):
             error = p["error"]
             button = p["button"]
             description = f"button={button}, expected={expected}, error={error}"
-            self.uut.set_yahoo_stock_data(old_data)
+
             with self.subTest(expected=expected, error=error):
+                self.services.yahoo_client= self.setup_client("yahoo_stock_data", old_data, new_data)
+                self.services.tradegate_client = self.setup_client("tradegate_stock_data", old_data, new_data)
                 if error:
                     with self.assertRaises(error, msg=description):
                         self.uut.click(button)
                 else:
                     self.uut.click(button)
-                actual = self.uut.get_yahoo_stock_data()
-                #comparing dataframes is not trivial, so we compare the string representation
-                self.assertEqual(str(expected), str(actual))
+                yahoo_actual = self.uut.get_yahoo_stock_data()
+                tradegate_actual = self.uut.get_tradegate_stock_data()
+                self.assertEqual(str(expected), str(yahoo_actual), f'yahoo - {description}')
+                self.assertEqual(str(expected), str(tradegate_actual), f'tradegate - {description}')

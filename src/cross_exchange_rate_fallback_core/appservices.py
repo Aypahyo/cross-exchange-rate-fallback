@@ -4,6 +4,7 @@ import importlib
 class AppServices:
     def __init__(self) -> None:
         self.yahoo_client = None
+        self.tradegate_client = None
 
     def initialize_service(self, service_name : str, class_ : type):
         if not isinstance(service_name, str):

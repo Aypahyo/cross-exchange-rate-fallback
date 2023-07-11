@@ -29,9 +29,25 @@ class StockPageModel:
     def get_yahoo_stock_data(self) -> pandas.core.frame.DataFrame:
         return self.yahoo_stock_data
 
-    def click_update_stock_data(self):
-        self.yahoo_stock_data = self.app_services.yahoo_client.get_stock_data(self.stock_search_term)
+    def set_tradegate_stock_data(self, input : pandas.core.frame.DataFrame):
+        if input is None:
+            input = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+        if not isinstance(input, pandas.core.frame.DataFrame):
+            raise TypeError(f"input must be pandas.core.frame.DataFrame, not {type(input)}")
+        self.tradegate_stock_data = input
 
+    def get_tradegate_stock_data(self) -> pandas.core.frame.DataFrame:
+        return self.tradegate_stock_data
+
+    def click_update_stock_data(self):
+        client_get_stock_data_methods = [
+            lambda x: self.set_yahoo_stock_data(self.app_services.yahoo_client.get_stock_data(x)),
+            lambda x: self.set_tradegate_stock_data(self.app_services.tradegate_client.get_stock_data(x)),
+        ]
+
+        for client_get_data in client_get_stock_data_methods:
+            client_get_data(self.stock_search_term)
+        
     def set_field(self, field : str, input):
         if not isinstance(field, str):
             raise TypeError(f"field must be str, not {type(field)}")
