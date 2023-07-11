@@ -29,14 +29,13 @@ class YahooClient:
             isin = ""
         if not isinstance(isin, str):
             raise TypeError(f"isin must be a string, but was {type(isin)}")
-        
-        data = None
-        while data is None:
+
+        symbol = None
+        while symbol is None:
             try:
                 data = yf.Ticker(isin)
-            except requests.exceptions.HTTPError as e:
-                if e.response.status_code != 401:
-                    raise e
-                #retry 401 - this error goes away after a few seconds
+                symbol = data.info['symbol']
+            except:
+                pass
 
-        return data.info['symbol']
+        return symbol
