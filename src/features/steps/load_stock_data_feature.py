@@ -33,3 +33,14 @@ def step_impl(context, symbol):
 @given(u'exchange usd_to_eur_rate data is loaded')
 def step_impl(context):
     context.current_pagemodel.click('update_exchange_rate_data')
+
+@given(u'stock data is converted for \'{symbol}\'')
+def step_impl(context, symbol):
+    context.current_pagemodel.set_field('stock_search_term', symbol)
+    context.current_pagemodel.click('update_stock_data')
+    context.current_pagemodel.click('update_exchange_rate_data')
+    context.current_pagemodel.click('convert_stock_data')
+
+@then(u'\'yahoo_converted_data\' has a column \'deviation\'')
+def step_impl(context):
+    assert 'deviation' in context.current_pagemodel.get_field('yahoo_converted_data').columns, "deviation column not found"

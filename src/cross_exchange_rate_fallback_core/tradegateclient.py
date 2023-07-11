@@ -3,6 +3,7 @@ import re
 import pandas
 import requests
 from cross_exchange_rate_fallback_core.appservices import AppServices
+from cross_exchange_rate_fallback_core.config import Config
 
 class TradegateClient:
     def __init__(self, app_services : AppServices):
@@ -41,13 +42,14 @@ class TradegateClient:
         if notation is None:
             return pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         
+        cfg : Config = self.app_services.config
+        
         # Get Quotes for Apple
         quotes_url = f"https://api.onvista.de/api/v1/instruments/STOCK/{instrument_data['instrument']['entityValue']}/chart_history"
         params = {
-            "endDate": "2023-06-29",
+            "startDate": cfg.start,
+            "endDate": cfg.end_inclusve,
             "idNotation": notation["market"]["idNotation"],
-            #"resolution": "1d",
-            "startDate": "2023-06-01",
         }
         quotes_data = fetch_data(quotes_url, isin, params)
 

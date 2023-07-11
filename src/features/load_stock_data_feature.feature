@@ -27,3 +27,9 @@ Feature: Load Stock Data
   And 'yahoo_converted_data' is empty
   When I click the 'convert_stock_data' button
   Then 'yahoo_converted_data' should not be empty
+
+  Scenario: Add deviation to converted stock data
+  Given I see the 'stock' page
+  And stock data is converted for 'GOOG'
+  When I click the 'add_deviation_to_converted_stock_data' button
+  Then 'yahoo_converted_data' has a column 'deviation'

@@ -143,6 +143,27 @@ class StockPageModelTest(unittest.TestCase):
         actual = self.uut.get_usd_to_eur()
         self.assertEqual(str(new_data), str(actual))
 
+    def test_click_add_deviation_to_converted_stock_data(self):
+        tradegate_frame = pandas.core.frame.DataFrame(
+            columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], 
+            index=["2021-01-01", "2021-01-02", "2021-01-03"], 
+            data=[["1", "2", "3", "4", "5", "6"], ["1", "2", "3", "4", "5", "6"], ["1", "2", "3", "4", "5", "6"]])
+
+        yahoo_converted_frame = pandas.core.frame.DataFrame(
+            columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], 
+            index=["2021-01-01", "2021-01-02", "2021-01-03"], 
+            data=[["1", "2", "3", str(4*1.2), "5", "6"], ["1", "2", "3", str(4*0.8), "5", "6"], ["1", "2", "3", "4", "5", "6"]])
+
+        expected_deviation = [.2, -.2, 0]
+
+        self.uut.set_field("tradegate_stock_data", tradegate_frame)
+        self.uut.set_field("yahoo_converted_data", yahoo_converted_frame)
+
+        self.uut.click_add_deviation_to_converted_stock_data()
+        actual = self.uut.get_field("yahoo_converted_data")
+        actual_deviation = actual["deviation"].tolist()
+        self.assertEqual(expected_deviation, actual_deviation)
+
     def test_click_button(self):
         old_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         new_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])

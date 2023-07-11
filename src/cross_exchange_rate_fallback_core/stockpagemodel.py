@@ -77,6 +77,12 @@ class StockPageModel:
     def click_convert_stock_data(self):
         converter : Converter = self.app_services.converter 
 
+        len_yahoo_stock_data = len(self.yahoo_stock_data)
+        len_usd_to_eur = len(self.usd_to_eur)
+        if len_yahoo_stock_data != len_usd_to_eur:
+            print(f"yahoo_stock_data length {len_yahoo_stock_data} != usd_to_eur length {len_usd_to_eur}")
+            return
+
         open_list = self.yahoo_stock_data['Open'].to_list()
         high_list = self.yahoo_stock_data['High'].to_list()
         low_list = self.yahoo_stock_data['Low'].to_list()
@@ -101,6 +107,36 @@ class StockPageModel:
         pandas_frame.index.name = 'Date'
 
         self.set_yahoo_converted_data(pandas_frame)
+
+    def click_add_deviation_to_converted_stock_data(self):
+        if self.yahoo_converted_data.empty:
+            print("yahoo_converted_data is empty")
+            return
+        if self.tradegate_stock_data.empty:
+            print("tradegate_stock_data is empty")
+            return
+        if len(self.yahoo_converted_data) != len(self.tradegate_stock_data):
+            len_yahoo_converted_data = len(self.yahoo_converted_data)
+            len_tradegate_stock_data = len(self.tradegate_stock_data)
+            print(f"yahoo_converted_data length {len_yahoo_converted_data} != tradegate_stock_data length {len_tradegate_stock_data}")
+            return
+        
+        yahoo_converted_close_list = self.yahoo_converted_data['Close'].to_list()
+        tradegate_close_list = self.tradegate_stock_data['Close'].to_list()
+
+        def get_deviation(yahoo, tradegate) -> float:
+            try:
+                yahoo_num = float(yahoo)
+                tradegate_num = float(tradegate)
+                return round((yahoo_num / tradegate_num)-1, 4)
+            except ValueError:
+                #like divide by zero or something
+                return 0.0
+
+
+        deviation_list = [get_deviation(yahoo, tradegate)  for yahoo, tradegate in zip(yahoo_converted_close_list, tradegate_close_list)]
+        self.yahoo_converted_data['deviation'] = deviation_list
+
 
     def set_field(self, field : str, input):
         if not isinstance(field, str):

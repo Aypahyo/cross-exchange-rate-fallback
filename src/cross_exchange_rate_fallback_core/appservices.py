@@ -6,6 +6,7 @@ class AppServices:
         self.yahoo_client = None
         self.tradegate_client = None
         self.converter = None
+        self.config = None
 
     def initialize_service(self, service_name : str, class_ : type):
         if not isinstance(service_name, str):
