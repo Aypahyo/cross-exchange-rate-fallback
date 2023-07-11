@@ -11,7 +11,8 @@ def main():
     app_services.initialize_service("tradegate_client", TradegateClient)
     app_model = AppModel(app_services)
     stockpage : StockPageModel = app_model.get_pagemodel("stock")
-    stockpage.stock_search_term = "US42309B4023"
+    #stockpage.stock_search_term = "US42309B4023"
+    stockpage.stock_search_term = "GOOG"
     stockpage.click_update_stock_data()
     print("Yahoo Stock Data:")
     print(stockpage.yahoo_stock_data)

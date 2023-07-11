@@ -59,7 +59,9 @@ class TradegateClient:
             "Close": quotes_data['last'],
             "Adj Close": quotes_data['last'], # Adjusted Close data is typically not directly provided in the fetched data
             "Volume": quotes_data['volume'],
-        }, index=[datetime.datetime.fromtimestamp(ts / 1000) for ts in quotes_data['datetimeLast']])
+        }, index=[datetime.datetime.fromtimestamp(ts) for ts in quotes_data['datetimeLast']])
+        df.index.name = "Date"
+
 
         return df
         
