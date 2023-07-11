@@ -24,3 +24,12 @@ def stock_data_should_not_be_empty(context, stock_data):
     expected_str = str(pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']))
     actual_str = str(context.current_pagemodel.get_field(stock_data))
     assert expected_str != actual_str, f"Expected: {expected_str}, Actual: {actual_str}"
+
+@given(u'stock data is loaded for \'{symbol}\'')
+def step_impl(context, symbol):
+    context.current_pagemodel.set_field('stock_search_term', symbol)
+    context.current_pagemodel.click('update_stock_data')
+
+@given(u'exchange usd_to_eur_rate data is loaded')
+def step_impl(context):
+    context.current_pagemodel.click('update_exchange_rate_data')
