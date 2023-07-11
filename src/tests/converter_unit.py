@@ -18,7 +18,7 @@ class ConverterTest(unittest.TestCase):
             (1, "USD", 1, "USD / USD", 1, "USD", None),
             (1, "USD", 1, "EUR / EUR", None, None, ValueError),
             (100, "USD", 0.85, "EUR / USD", 85, "EUR", None),
-            (100, "EUR", 2, "USD / EUR", 200, "EUR", None),
+            (100, "EUR", 2, "USD / EUR", 200, "USD", None),
             (100, "USD", 1.18, "USD / EUR", 84.7457627118644, "EUR", None),
             ("1", "USD", 1, "USD / USD", None, None, TypeError),
             (1, "USD", "1", "USD / USD", None, None, TypeError),
