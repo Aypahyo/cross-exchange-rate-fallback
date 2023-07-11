@@ -1,6 +1,7 @@
 import unittest
 
 import pandas
+from cross_exchange_rate_fallback_core.config import Config
 from cross_exchange_rate_fallback_core.yahooclient import YahooClient
 from cross_exchange_rate_fallback_core.appservices import AppServices
 
@@ -8,7 +9,8 @@ class StockClientTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.services = AppServices()
-        self.sut = YahooClient(self)
+        self.services.initialize_service("config", Config)
+        self.sut = YahooClient(self.services)
         return super().setUp()
     
     def test_get_stock_data(self):

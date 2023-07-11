@@ -1,13 +1,15 @@
 import unittest
 
 import pandas
+from cross_exchange_rate_fallback_core.config import Config
 from cross_exchange_rate_fallback_core.tradegateclient import TradegateClient
 from cross_exchange_rate_fallback_core.appservices import AppServices
 
 class TradegateClientTest(unittest.TestCase):
     def setUp(self) -> None:
         self.services = AppServices()
-        self.sut = TradegateClient(self)
+        self.services.initialize_service("config", Config)
+        self.sut = TradegateClient(self.services)
         return super().setUp()
     def test_get_stock_data(self):
         def looks_like_stock_data(input):
