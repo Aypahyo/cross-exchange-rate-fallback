@@ -23,3 +23,9 @@ python3 -m behave
 src/run_all_tests.sh
 src/run_docker_all_tests.sh
 ```
+
+## for later
+
+when I write my blog entry on this, I should include a list of nano-cap stocks, e.g. from here:
+
+<https://stockanalysis.com/list/nano-cap-stocks/>
