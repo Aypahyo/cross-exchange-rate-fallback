@@ -48,3 +48,30 @@ class StockClientTest(unittest.TestCase):
                 else:
                     with self.assertRaises(error, msg=description):
                         self.sut.get_stock_data(input)
+
+    def test_get_usd_to_eur(self):
+        def looks_like_data(input):
+            if isinstance(input, pandas.core.frame.DataFrame)and  len(input) > 0:
+                return True
+            return False
+
+        parameter = [
+            {"testcase": "USD", "evaluate": looks_like_data, "error": None},
+        ]
+
+        for p in parameter:
+            testcase = p["testcase"]
+            evaluate = p["evaluate"]
+            evaluate_name = evaluate.__name__ if evaluate else None
+            error = p["error"]
+            description = f"testcase: {testcase}, evaluate: {evaluate_name}, error: {error}"
+            with self.subTest(description):
+                if error is None:
+                    actual = self.sut.get_usd_to_eur()
+                    if evaluate is not None:
+                        self.assertTrue(evaluate(actual), description)
+                    else:
+                        self.assertTrue(False, "Invalid test case")
+                else:
+                    with self.assertRaises(error, msg=description):
+                        self.sut.get_usd_to_eur()

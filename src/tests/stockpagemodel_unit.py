@@ -97,6 +97,9 @@ class StockPageModelTest(unittest.TestCase):
             {"field" : "stock_search_term", "input": 123, "expected": None, "error": TypeError},
             {"field" : "unknown", "input": "AAPL", "expected": None, "error": ValueError},
             {"field" : None, "input": "AAPL", "expected": None, "error": TypeError},
+            {"field" : "usd_to_eur", "input": pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']), "expected": pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']), "error": None},
+            {"field" : "usd_to_eur", "input": None, "expected": pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']), "error": None},
+            {"field" : "usd_to_eur", "input": 123, "expected": None, "error": TypeError},
         ]
 
         for p in parameter:
@@ -111,14 +114,15 @@ class StockPageModelTest(unittest.TestCase):
                 else:
                     self.uut.set_field(field, input)
                     actual = self.uut.get_field(field)
-                    self.assertEqual(expected, actual)
+                    self.assertEqual(str(expected), str(actual))
 
     def setup_client(self, data_field, old_value, new_value):
         self.uut.set_field(data_field, old_value)
         client = MagicMock()
+        #a bit hacky - dont tell anyone
         client.get_stock_data = MagicMock(return_value=new_value)
+        client.get_usd_to_eur = MagicMock(return_value=new_value)
         return client
-
 
     def test_click_update_stock_data(self):
         old_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
@@ -128,6 +132,15 @@ class StockPageModelTest(unittest.TestCase):
         
         self.uut.click_update_stock_data()
         actual = self.uut.get_yahoo_stock_data()
+        self.assertEqual(str(new_data), str(actual))
+
+    def test_click_update_exchange_rate_data(self):
+        old_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+        new_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'], data=[["1", "2", "3", "4", "5", "6"]])
+        self.services.yahoo_client= self.setup_client("usd_to_eur", old_data, new_data)
+        
+        self.uut.click_update_exchange_rate_data()
+        actual = self.uut.get_usd_to_eur()
         self.assertEqual(str(new_data), str(actual))
 
     def test_click_button(self):

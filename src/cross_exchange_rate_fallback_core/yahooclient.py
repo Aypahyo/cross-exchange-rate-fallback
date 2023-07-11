@@ -18,16 +18,25 @@ class YahooClient:
             raise TypeError(f"data must be a pandas.core.frame.DataFrame, but was {type(data)}")
         return data
     
+    def get_usd_to_eur(self) -> pandas.core.frame.DataFrame:
+        data : pandas.core.frame.DataFrame = yf.download("EUR=X", start='2023-06-01', end='2023-06-30', progress=False)
+        if not isinstance(data, pandas.core.frame.DataFrame):
+            raise TypeError(f"data must be a pandas.core.frame.DataFrame, but was {type(data)}")
+        return data
+
     def get_symbol_from_isin(self, isin: str) -> str:
         if isin is None:
             isin = ""
         if not isinstance(isin, str):
             raise TypeError(f"isin must be a string, but was {type(isin)}")
         
-        try:
-            data = yf.Ticker(isin)
-        except requests.exceptions.HTTPError as e:
-            #retry once - sometimes yfinance fails with a HTTPError 401 but woudl work on a second try
-            data = yf.Ticker(isin)
+        data = None
+        while data is None:
+            try:
+                data = yf.Ticker(isin)
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code != 401:
+                    raise e
+                #retry 401 - this error goes away after a few seconds
 
         return data.info['symbol']

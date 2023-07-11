@@ -8,6 +8,7 @@ class StockPageModel:
         self.stock_search_term = ""
         self.yahoo_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         self.tradegate_stock_data = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+        self.usd_to_eur = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
         
     def set_stock_search_term(self, input : str):
         if input is None:
@@ -39,6 +40,16 @@ class StockPageModel:
     def get_tradegate_stock_data(self) -> pandas.core.frame.DataFrame:
         return self.tradegate_stock_data
 
+    def set_usd_to_eur(self, input : pandas.core.frame.DataFrame):
+        if input is None:
+            input = pandas.core.frame.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+        if not isinstance(input, pandas.core.frame.DataFrame):
+            raise TypeError(f"input must be pandas.core.frame.DataFrame, not {type(input)}")
+        self.usd_to_eur = input
+    
+    def get_usd_to_eur(self) -> pandas.core.frame.DataFrame:
+        return self.usd_to_eur
+
     def click_update_stock_data(self):
         client_get_stock_data_methods = [
             lambda x: self.set_yahoo_stock_data(self.app_services.yahoo_client.get_stock_data(x)),
@@ -47,7 +58,10 @@ class StockPageModel:
 
         for client_get_data in client_get_stock_data_methods:
             client_get_data(self.stock_search_term)
-        
+    
+    def click_update_exchange_rate_data(self):
+        self.set_usd_to_eur(self.app_services.yahoo_client.get_usd_to_eur())
+
     def set_field(self, field : str, input):
         if not isinstance(field, str):
             raise TypeError(f"field must be str, not {type(field)}")
