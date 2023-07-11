@@ -44,7 +44,7 @@ class TradegateClient:
         # Get Quotes for Apple
         quotes_url = f"https://api.onvista.de/api/v1/instruments/STOCK/{instrument_data['instrument']['entityValue']}/chart_history"
         params = {
-            "endDate": "2023-06-30",
+            "endDate": "2023-06-29",
             "idNotation": notation["market"]["idNotation"],
             #"resolution": "1d",
             "startDate": "2023-06-01",
